@@ -1,0 +1,1 @@
+export const AUTH_SERVICE_COOKIE_NAME = process.env.AUTH_SERVICE_COOKIE_NAME;

@@ -1,0 +1,76 @@
+networks:
+  qtim-test:
+    # Specify driver options
+    name: qtim-test
+    driver: bridge
+
+volumes:
+  redis:
+    driver: local
+
+
+services:
+  qtim-test:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: qtim-test
+    ports:
+      - ${PORT}:${PORT}
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:5432/${DB_NAME}?schema=public&connect_timeout=300
+    restart: always
+    networks:
+      - qtim-test
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:${PORT}/health",
+        ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    depends_on:
+      - qtim-test-redis
+      - qtim-test-postgres
+
+  qtim-test-redis:
+    container_name: qtim-test-redis
+    image: redis
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    volumes:
+      - redis:/data
+    networks:
+      - qtim-test
+
+  qtim-test-postgres:
+    image: postgres:14-alpine
+    container_name: qtim-test-postgres
+    env_file:
+      - .env
+    environment:
+      PGDATA: /var/lib/postgresql/data/qtim-test
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: always
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    networks:
+      - qtim-test
