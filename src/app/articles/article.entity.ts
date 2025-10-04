@@ -31,7 +31,7 @@ export class ArticleEntity extends BaseEntity implements IArticle {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  @JoinColumn({ name: 'createdById' })
+  @JoinColumn({ name: 'createdByEmail' })
   createdBy: UserEntity;
 
   @CreateDateColumn()

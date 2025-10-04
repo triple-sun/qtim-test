@@ -15,7 +15,7 @@ export class UserExistsGuard implements CanActivate {
 
     const user = await this.usersService.findByEmail(email);
 
-    if (!user) throw new NotFoundException(`Пользователь не найден!`);
+    if (!user) throw new NotFoundException(`Пользователь [${email}] не найден!`);
 
     return !!user;
   }

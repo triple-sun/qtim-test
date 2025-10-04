@@ -1,12 +1,12 @@
 import {
   Entity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
   BaseEntity,
   BeforeInsert,
+  PrimaryColumn,
 } from 'typeorm';
 import type { ArticleEntity } from '../articles/article.entity';
 import { Exclude, Expose, instanceToPlain } from 'class-transformer';
@@ -17,11 +17,7 @@ import { IUser } from './user.interface';
 @Entity()
 export class UserEntity extends BaseEntity implements IUser {
   @Expose()
-  @PrimaryGeneratedColumn({ type: 'int' })
-  id: number;
-
-  @Expose()
-  @Column({ unique: true })
+  @PrimaryColumn()
   @ApiProperty({ type: String, description: 'Email пользователя' })
   email: string;
 
@@ -54,6 +50,10 @@ export class UserEntity extends BaseEntity implements IUser {
 
   async validatePassword(password: string) {
     if (!password || !this.password) return false;
+
+    const salt = await genSalt();
+
+    console.log(this.password, await hash(password, salt));
 
     return await compare(password, this.password);
   }

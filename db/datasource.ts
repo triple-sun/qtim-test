@@ -2,12 +2,12 @@ import 'dotenv/config';
 
 import { ConfigService } from '@nestjs/config';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { UserEntity } from '../app/users/user.entity';
-import { ArticleEntity } from '../app/articles/article.entity';
 import { SeederOptions } from 'typeorm-extension';
-import { MainSeeder } from './main.seeder';
 import { ArticleFactory } from './factories/article.factory';
 import { UserFactory } from './factories/user.factory';
+import { MainSeeder } from './main.seeder';
+import { UserEntity } from '../src/app/users/user.entity';
+import { ArticleEntity } from '../src/app/articles/article.entity';
 
 const config = new ConfigService();
 
@@ -19,8 +19,8 @@ export const dataSourceOptions: DataSourceOptions & SeederOptions = {
   password: config.get<string>('DB_PASS'),
   database: config.get<string>('DB_NAME'),
   entities: [UserEntity, ArticleEntity],
-  migrations: ['./dist/*-migrations.ts'],
-  factories: [ArticleFactory, UserFactory],
+  migrations: ['./db/migrations/*.ts'],
+  factories: [UserFactory, ArticleFactory],
   seeds: [MainSeeder],
 };
 

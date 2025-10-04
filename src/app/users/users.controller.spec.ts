@@ -3,7 +3,6 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
 import { CreateUserDto, UpdateUserDto } from './users.dto';
-import { NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { LoggerModule } from '../logger/logger.module';
 import { UsersModule } from './users.module';
@@ -74,10 +73,8 @@ describe('UsersController', () => {
     expect(usersService.findAll).toHaveBeenCalled();
   });
 
-  it('should find a user by email and return its data', async () => {
-    jest
-      .spyOn(usersService, 'findByEmail')
-      .mockResolvedValue(mockUserEntities[0]);
+  it('should find a user by id and return its data', async () => {
+    jest.spyOn(usersService, 'findByEmail').mockResolvedValue(mockUserEntities[0]);
 
     const result = await controller.findOne({
       email: mockUserEntities[0].email,
@@ -90,10 +87,8 @@ describe('UsersController', () => {
     );
   });
 
-  it('should find a user by email and update its data', async () => {
-    jest
-      .spyOn(usersService, 'updateByEmail')
-      .mockResolvedValue(mockUserEntities[0]);
+  it('should find a user by id and update its data', async () => {
+    jest.spyOn(usersService, 'update').mockResolvedValue(mockUserEntities[0]);
 
     const email = mockUserEntities[0].email;
     const updateUserDto = {
@@ -103,24 +98,19 @@ describe('UsersController', () => {
     const result = await controller.update({ email }, updateUserDto);
 
     expect(result).toEqual(mockUserEntities[0]);
-    expect(usersService.updateByEmail).toHaveBeenCalled();
-    expect(usersService.updateByEmail).toHaveBeenCalledWith(
-      email,
-      updateUserDto,
-    );
+    expect(usersService.update).toHaveBeenCalled();
+    expect(usersService.update).toHaveBeenCalledWith(email, updateUserDto);
   });
 
-  it('should find a user by email, remove and then return status', async () => {
-    jest
-      .spyOn(usersService, 'deleteByEmail')
-      .mockResolvedValue({ deleted: true });
+  it('should find a user by id, remove and then return status', async () => {
+    jest.spyOn(usersService, 'delete').mockResolvedValue({ deleted: true });
 
     const email = mockUserEntities[0].email;
 
     const result = await controller.delete({ email });
 
     expect(result).toEqual({ deleted: true });
-    expect(usersService.deleteByEmail).toHaveBeenCalled();
-    expect(usersService.deleteByEmail).toHaveBeenCalledWith(email);
+    expect(usersService.delete).toHaveBeenCalled();
+    expect(usersService.delete).toHaveBeenCalledWith(email);
   });
 });

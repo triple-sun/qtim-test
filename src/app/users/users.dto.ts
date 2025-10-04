@@ -21,7 +21,7 @@ export class UpdateUserDto {
   password?: string;
 }
 
-export class UserEmailParam {
+export class UserEmailParamDto {
   @IsEmail({}, { message: `Некоррейтный имейл!` })
   @ApiProperty({ type: String, description: 'Email пользователя' })
   email: string;

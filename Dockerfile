@@ -26,9 +26,13 @@ RUN apt-get update && apt-get install -y openssl
 RUN addgroup --system appgroup && adduser --system appuser --ingroup appgroup
 
 COPY --from=build /usr/src/app/node_modules ./node_modules
+COPY --chown=appuser:appgroup tsconfig.build.json ./
+COPY --chown=appuser:appgroup tsconfig.json ./
 COPY --chown=appuser:appgroup --from=build /usr/src/app/package*.json ./
 COPY --chown=appuser:appgroup --from=build /usr/src/app/dist ./dist
 COPY --chown=appuser:appgroup --from=build /usr/src/app/.env ./.env
+COPY --chown=appuser:appgroup --from=build /usr/src/app/db ./db
+COPY --chown=appuser:appgroup --from=build /usr/src/app/src ./src
 
 # Switch to non-root user
 USER appuser

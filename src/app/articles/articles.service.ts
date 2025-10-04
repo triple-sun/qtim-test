@@ -29,7 +29,9 @@ export class ArticlesService {
     /** Отдаем кеш если он есть */
     if (cached) return cached;
 
-    const articles = await this.articlesRepository.find();
+    const articles = await this.articlesRepository.find({
+      relations: ['createdBy'],
+    });
     /** Пишем в кеш */
     await this.cache.set(ALL_ARTICLES_CACHE_KEY, articles);
 
@@ -80,9 +82,9 @@ export class ArticlesService {
     return found;
   }
 
-  async findByEmail(email: string) {
+  async findByUserEmail(email: string) {
     return await this.articlesRepository.findBy({
-      createdBy: { email },
+      createdBy: { email: email },
     });
   }
 

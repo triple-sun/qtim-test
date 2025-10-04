@@ -8,7 +8,7 @@ import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
 import { CacheService } from '../cache/cache.service';
 import { CacheModule } from '../cache/cache.module';
 import { ALL_ARTICLES_CACHE_KEY } from '../articles/articles.const';
-import { UserEmailCacheKey } from './users.utils';
+import { UserCacheKey } from './users.utils';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { mockUserEntities, mockUsers } from './users.mocks';
 import { UserEntity } from './user.entity';
@@ -77,7 +77,7 @@ describe('UsersService', () => {
 
       expect(cacheService.delete).toHaveBeenCalledWith(ALL_USERS_CACHE_KEY);
       expect(cacheService.set).toHaveBeenCalledWith(
-        UserEmailCacheKey(mockUserEntities[0].email),
+        UserCacheKey(mockUserEntities[0].email),
         mockUserEntities[0],
       );
     });
@@ -177,11 +177,11 @@ describe('UsersService', () => {
 
   describe('update', () => {
     beforeEach(() => {
-      jest.spyOn(service, 'updateByEmail');
+      jest.spyOn(service, 'update');
     });
 
     it('should be defined', () => {
-      expect(service.updateByEmail).toBeDefined();
+      expect(service.update).toBeDefined();
     });
 
     it('should call repository.findOneBy and repository.update', async () => {
@@ -193,7 +193,7 @@ describe('UsersService', () => {
         .mockResolvedValueOnce(mockUserEntities[0]);
       jest.spyOn(mockUserEntities[0], 'setPassword');
 
-      await service.updateByEmail(mockUserEntities[0].email, {
+      await service.update(mockUserEntities[0].email, {
         password: '12345',
       });
 
@@ -211,7 +211,7 @@ describe('UsersService', () => {
         .mockResolvedValueOnce(mockUserEntities[0]);
 
       expect(
-        service.updateByEmail(mockUserEntities[0].email, { password: '12345' }),
+        service.update(mockUserEntities[0].email, { password: '12345' }),
       ).resolves.toEqual(mockUserEntities[0]);
     });
 
@@ -224,7 +224,7 @@ describe('UsersService', () => {
         .spyOn(usersRepository, 'save')
         .mockResolvedValueOnce(mockUserEntities[0]);
 
-      const result = await service.updateByEmail(mockUsers[0].email, {
+      const result = await service.update(mockUsers[0].email, {
         password: '12345',
       });
 
@@ -235,63 +235,63 @@ describe('UsersService', () => {
     });
   });
 
-  describe('deleteByEmail', () => {
+  describe('delete', () => {
     beforeEach(() => {
-      jest.spyOn(service, 'deleteByEmail');
+      jest.spyOn(service, 'delete');
     });
 
     it('should be defined', () => {
-      expect(service.deleteByEmail).toBeDefined();
+      expect(service.delete).toBeDefined();
     });
 
     it('should call usersRepository.delete and articlesService.findByEmail', async () => {
       jest
-        .spyOn(articlesService, 'findByEmail')
+        .spyOn(articlesService, 'findByUserEmail')
         .mockResolvedValueOnce([mockArticleEntities[0]]);
       jest
         .spyOn(usersRepository, 'delete')
         .mockResolvedValueOnce({ affected: 1, raw: '' });
 
-      await service.deleteByEmail(mockUserEntities[0].email);
+      await service.delete(mockUserEntities[0].email);
 
       expect(usersRepository.delete).toHaveBeenCalledWith({
         email: mockUserEntities[0].email,
       });
-      expect(articlesService.findByEmail).toHaveBeenCalledWith(
+      expect(articlesService.findByUserEmail).toHaveBeenCalledWith(
         mockUserEntities[0].email,
       );
     });
 
     it('should delete an user', () => {
       jest
-        .spyOn(articlesService, 'findByEmail')
+        .spyOn(articlesService, 'findByUserEmail')
         .mockResolvedValueOnce([mockArticleEntities[0]]);
       jest
         .spyOn(usersRepository, 'delete')
         .mockResolvedValueOnce({ affected: 1, raw: '' });
 
-      expect(service.deleteByEmail(mockUserEntities[0].email)).resolves.toEqual(
-        { deleted: true },
-      );
+      expect(service.delete(mockUserEntities[0].email)).resolves.toEqual({
+        deleted: true,
+      });
     });
 
     it('should update cache', async () => {
       jest.spyOn(cacheService, 'delete');
       jest
-        .spyOn(articlesService, 'findByEmail')
+        .spyOn(articlesService, 'findByUserEmail')
         .mockResolvedValueOnce([mockArticleEntities[0]]);
       jest
         .spyOn(usersRepository, 'delete')
         .mockResolvedValueOnce({ affected: 1, raw: '' });
 
-      const result = await service.deleteByEmail(mockUserEntities[0].email);
+      const result = await service.delete(mockUserEntities[0].email);
 
       expect(result).toEqual({ deleted: true });
 
       expect(cacheService.delete).toHaveBeenCalledWith(ALL_ARTICLES_CACHE_KEY);
       expect(cacheService.delete).toHaveBeenCalledWith(ALL_USERS_CACHE_KEY);
       expect(cacheService.delete).toHaveBeenCalledWith(
-        UserEmailCacheKey(mockUserEntities[0].email),
+        UserCacheKey(mockUserEntities[0].email),
       );
       expect(cacheService.deleteMany).toHaveBeenCalledWith([
         ArticleIdCacheKey(mockArticleEntities[0].id),

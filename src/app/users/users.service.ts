@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './users.dto';
-import { UserEmailCacheKey } from './users.utils';
+import { UserCacheKey } from './users.utils';
 import { ALL_USERS_CACHE_KEY } from '../logger/users.const';
 import { ALL_ARTICLES_CACHE_KEY } from '../articles/articles.const';
 import { ArticleIdCacheKey } from '../articles/articles.utils';
@@ -21,7 +21,9 @@ export class UsersService {
   ) {}
 
   async findByEmail(email: string) {
-    return await this.usersRepository.findOneBy({ email });
+    return await this.usersRepository.findOneBy({
+      email: email,
+    });
   }
 
   async findAll() {
@@ -29,9 +31,7 @@ export class UsersService {
   }
 
   async signUp({ email, password }: CreateUserDto) {
-    const newUser = this.usersRepository.create({ email });
-
-    await newUser.setPassword(password);
+    const newUser = this.usersRepository.create({ email, password });
 
     const saved = await this.usersRepository.save(newUser);
 
@@ -40,7 +40,7 @@ export class UsersService {
     return saved;
   }
 
-  async updateByEmail(email: string, { password }: UpdateUserDto) {
+  async update(email: string, { password }: UpdateUserDto) {
     const toUpdate = await this.usersRepository.findOneBy({ email });
 
     await toUpdate.setPassword(password);
@@ -52,14 +52,14 @@ export class UsersService {
     return updated;
   }
 
-  async deleteByEmail(email: string) {
+  async delete(email: string) {
     /** Получаем список статей для чистки кеша */
-    const articles = await this.articlesService.findByEmail(email);
+    const articles = await this.articlesService.findByUserEmail(email);
     /** Удаляем юзера */
-    await this.usersRepository.delete({ email });
+    await this.usersRepository.delete({ email: email });
     /** Чистим кеш юзеров */
     await this.cache.delete(ALL_USERS_CACHE_KEY);
-    await this.cache.delete(UserEmailCacheKey(email));
+    await this.cache.delete(UserCacheKey(email));
     /** Чистим кеш статей юзера */
     await this.cache.delete(ALL_ARTICLES_CACHE_KEY);
     await this.cache.deleteMany(
@@ -71,7 +71,7 @@ export class UsersService {
 
   /** Обновление кеша */
   async updateItemCache(item: UserEntity) {
-    await this.cache.set(UserEmailCacheKey(item.email), item);
+    await this.cache.set(UserCacheKey(item.email), item);
     await this.cache.delete(ALL_USERS_CACHE_KEY);
   }
 }

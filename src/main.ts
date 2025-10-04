@@ -1,14 +1,9 @@
 import 'reflect-metadata';
-import 'es6-shim';
 import 'dotenv/config';
 import 'source-map-support/register';
 import './config/dayjs.config';
 
-import {
-  ClassSerializerInterceptor,
-  Logger,
-  ValidationPipe,
-} from '@nestjs/common';
+import { ClassSerializerInterceptor, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost, NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -18,11 +13,7 @@ import { ClsService } from 'nestjs-cls';
 import { AppModule } from './app/app.module';
 import { LoggerService } from './app/logger/logger.service';
 import { AppExceptionsFilter } from './common/filters/app-exception.filter';
-import { ValidationPipeOptions } from '@nestjs/common';
-import {
-  globalValidationPipe,
-  validationPipeOptions,
-} from './config/validation.config';
+import { globalValidationPipe } from './config/validation.config';
 
 async function main(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);

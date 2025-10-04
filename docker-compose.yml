@@ -1,20 +1,18 @@
 networks:
-  qtim-test:
+  qtim_test:
     # Specify driver options
-    name: qtim-test
+    name: qtim_test
     driver: bridge
-
 volumes:
   redis:
     driver: local
 
-
 services:
-  qtim-test:
+  qtim_test:
     build:
       context: .
       dockerfile: ./Dockerfile
-    container_name: qtim-test
+    container_name: qtim_test
     ports:
       - ${PORT}:${PORT}
     env_file:
@@ -23,7 +21,7 @@ services:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:5432/${DB_NAME}?schema=public&connect_timeout=300
     restart: always
     networks:
-      - qtim-test
+      - qtim_test
     healthcheck:
       test:
         [
@@ -38,26 +36,26 @@ services:
       timeout: 3s
       retries: 3
     depends_on:
-      - qtim-test-redis
-      - qtim-test-postgres
+      - qtim_test_postgres
+      - qtim_test_redis
 
-  qtim-test-redis:
-    container_name: qtim-test-redis
+  qtim_test_redis:
+    container_name: qtim_test_redis
     image: redis
     ports:
       - ${REDIS_PORT}:${REDIS_PORT}
     volumes:
       - redis:/data
     networks:
-      - qtim-test
+      - qtim_test
 
-  qtim-test-postgres:
+  qtim_test_postgres:
     image: postgres:14-alpine
-    container_name: qtim-test-postgres
+    container_name: qtim_test_postgres
     env_file:
       - .env
     environment:
-      PGDATA: /var/lib/postgresql/data/qtim-test
+      PGDATA: /var/lib/postgresql/data/qtim_test
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
@@ -71,6 +69,6 @@ services:
       start_period: 10s
     restart: always
     volumes:
-      - ./db:/var/lib/postgresql/data
+      - ./qtim_test_postgres:/var/lib/postgresql/data
     networks:
-      - qtim-test
+      - qtim_test

@@ -16,13 +16,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { EmailAlreadyExistsGuard } from './guards/email-already-exists.guard';
 import { UserExistsGuard } from './guards/user-exists.guard';
-import { CreateUserDto, UpdateUserDto, UserEmailParam } from './users.dto';
+import { CreateUserDto, UpdateUserDto, UserEmailParamDto } from './users.dto';
 import { UsersService } from './users.service';
 import { LoggerService } from '../logger/logger.service';
 import { UserRdo } from './users.rdo';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('users')
 @ApiTags('users')
@@ -38,7 +38,7 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiNotFoundResponse({ type: NotFoundException })
   @ApiOkResponse({ type: UserRdo, description: `Данные пользователя` })
-  async findOne(@Param() { email }: UserEmailParam) {
+  async findOne(@Param() { email }: UserEmailParamDto) {
     const user = await this.userService.findByEmail(email);
 
     return this.returnOk(user);
@@ -67,8 +67,8 @@ export class UsersController {
   @ApiBearerAuth()
   @UseGuards(UserExistsGuard)
   @ApiOkResponse({ type: UserRdo, description: `Данные пользователя` })
-  async update(@Param() { email }: UserEmailParam, @Body() dto: UpdateUserDto) {
-    const user = await this.userService.updateByEmail(email, dto);
+  async update(@Param() { email }: UserEmailParamDto, @Body() dto: UpdateUserDto) {
+    const user = await this.userService.update(email, dto);
 
     return this.returnOk(user);
   }
@@ -77,13 +77,13 @@ export class UsersController {
   @ApiBearerAuth()
   @UseGuards(UserExistsGuard)
   @ApiOkResponse({
-    type: () => {
-      deleted: Boolean;
+    type: class DeletedRdo {
+      deleted: boolean;
     },
     description: `Результат операции`,
   })
-  async delete(@Param() { email }: UserEmailParam) {
-    const deleted = await this.userService.deleteByEmail(email);
+  async delete(@Param() { email }: UserEmailParamDto) {
+    const deleted = await this.userService.delete(email);
 
     return this.returnOk(deleted);
   }
