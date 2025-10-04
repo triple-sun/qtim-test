@@ -65,10 +65,11 @@ describe('AuthService', () => {
       const mockUser = plainToInstance(UserEntity, {
         id: 0,
         email: 'test@email.com',
-        passwordHash: await hash(mockPassword, await genSalt(10)),
         createdAt: new Date(),
         updatedAt: new Date(),
       });
+
+      await mockUser.setPassword(mockPassword);
 
       jest.spyOn(usersService, 'findByEmail').mockResolvedValueOnce(mockUser);
 

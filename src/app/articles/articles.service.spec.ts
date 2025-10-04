@@ -1,6 +1,5 @@
 import '../../config/dayjs.config';
 
-import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
@@ -104,7 +103,9 @@ describe('ArticlesService', () => {
 
       expect(result).toEqual(mockArticleEntities);
 
-      expect(articlesRepository.find).toHaveBeenCalledWith();
+      expect(articlesRepository.find).toHaveBeenCalledWith({
+        relations: ['createdBy'],
+      });
       expect(articlesRepository.find).toHaveBeenCalledTimes(1);
 
       expect(cacheService.get).toHaveBeenCalledTimes(1);
