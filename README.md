@@ -14,16 +14,22 @@
 docker compose up -d --build
 ```
 
+#### Установить пакеты
+
+```bash
+npm i
+```
+
 #### Провести миграцию
 
 ```bash
-docker container exec -it qtim_test sh -c "npm run typeorm:migrate"
+npm run migrate:prod
 ```
 
 ## Заполнение сид-данными
 
 ```bash
-docker container exec -it qtim_test sh -c "npm run seed"
+npm run seed
 ```
 
 ### Тесты
@@ -57,6 +63,7 @@ npm run format
 - Поиск по статьям доступен для незарегистрированных пользователей
 
 - Регистрация
+
   - Сначала нужно создать пользователя с помощью эндпоинта `/auth/signup` передав body формата:
 
   ```json
